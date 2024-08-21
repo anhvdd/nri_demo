@@ -1,0 +1,6 @@
+model Address {
+  id                 Int     @id @default(autoincrement())
+  addressDescription String
+  user               User[]
+  Order              Order[]
+}
