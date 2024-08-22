@@ -35,6 +35,7 @@ const UserSchema = gql`
   type UserBaseResponse {
     code: String
     success: Boolean
+    data: User
   }
 `;
 export default UserSchema;

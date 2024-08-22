@@ -1,44 +1,31 @@
+import { GraphQLResolveInfo } from "graphql";
 import { PubSub } from "graphql-subscriptions";
-import prisma from "../../db/prisma";
-import { AppContext } from "../../interface/AppContext";
+import { PaginationDto } from "../../common/dtos/pagination.dto";
+import { UserCreateDto } from "../../modules/user/dto/create-user.dto";
+import { UserUpdateDto } from "../../modules/user/dto/update-user.dto";
+import userService from "../../modules/user/user.service";
+import { AppContext } from "../../common/interfaces/AppContext";
 
 const pubSub = new PubSub();
 const UserResolver = {
   Query: {
     findUsers: async (
       _parents: any,
-      _args: any,
+      _args: PaginationDto,
       _contextValue: AppContext,
-      _info: any
+      _info: GraphQLResolveInfo
     ) => {
-      try {
-        // const result = await prisma.$queryRaw`SELECT * FROM "User"`;
-        const result = await prisma.user.findMany(
-          // {
-          // take: 2,
-          // skip: 0,}
-          // { include: { address: true } }
-          {
-            relationLoadStrategy: "join",
-            select: { password: false, address: true },
-          }
-        );
-        console.log("🚀 ~ result:", result);
-        return result;
-      } catch (error) {
-        console.log("🚀 ~ findUsers:async ~ error:", error);
-      }
+      const result = await userService.getAllUserWithPagination(_args);
+      return result;
     },
-    findUser: async (_: any, { id }: { id: string }) => {
-      try {
-        return await prisma.user.findUnique({
-          relationLoadStrategy: "join",
-          include: { address: true },
-          where: { id: parseInt(id) },
-        });
-      } catch (error) {
-        console.log("🚀 ~ findUser:async ~ error:", error);
-      }
+    findUser: async (
+      _parents: any,
+      { id }: { id: string },
+      _contextValue: AppContext,
+      _info: GraphQLResolveInfo
+    ) => {
+      const result = userService.getUserById(Number(id));
+      return result;
     },
   },
   // User: {
@@ -60,38 +47,31 @@ const UserResolver = {
   //   },
   // },
   Mutation: {
-    createUser: async (_: any, { input }: any) => {
-      try {
-        const result = await prisma.user
-          .create({ data: input })
-          .then((result: any) => {
-            const newAddedUser = { ...result };
-
-            pubSub.publish("NEW_USER", { newAddedUser });
-
-            return newAddedUser;
-          });
-        return result;
-      } catch (error) {
-        console.log("🚀 ~ createUser:async ~ error:", error);
-      }
+    createUser: async (
+      _parents: any,
+      _args: UserCreateDto,
+      _contextValue: AppContext,
+      _info: GraphQLResolveInfo
+    ) => {
+      const result = await userService.createUser(_args);
+      return result;
     },
-    editUser: async (_: any, { id, input }: any) => {
-      try {
-        return await prisma.user.update({
-          where: { id: parseInt(id) },
-          data: input,
-        });
-      } catch (error) {
-        console.log("🚀 ~ editUser:async ~ error:", error);
-      }
+    editUser: async (
+      _parents: any,
+      _args: UserUpdateDto,
+      _contextValue: AppContext,
+      _info: GraphQLResolveInfo
+    ) => {
+      const result = await userService.editUser(_args);
+      return result;
     },
-    deleteUser: async (_: any, { id }: any) => {
-      try {
-        return await prisma.user.delete({ where: { id: parseInt(id) } });
-      } catch (error) {
-        console.log("🚀 ~ deleteUser:async ~ error:", error);
-      }
+    deleteUser: async (
+      _parents: any,
+      _args: string,
+      _contextValue: AppContext,
+      _info: GraphQLResolveInfo
+    ) => {
+      const result = await userService.deleteUser(Number(_args));
     },
   },
   Subscription: {

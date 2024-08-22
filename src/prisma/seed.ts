@@ -1,4 +1,4 @@
-import prisma from "../db/prisma.js";
+import prisma from "../config/db/prisma.js";
 
 async function main() {
   const addressInitialization = await prisma.address.createMany({

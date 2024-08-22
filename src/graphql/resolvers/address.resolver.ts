@@ -1,46 +1,57 @@
-import prisma from "../../db/prisma";
-
+import { GraphQLResolveInfo } from "graphql";
+import { PaginationDto } from "../../common/dtos/pagination.dto";
+import prisma from "../../config/db/prisma";
+import addressService from "../../modules/address/address.service";
+import { CreateAddressDto } from "../../modules/address/dto/create-address.dto";
+import { AddressUpdateDto } from "../../modules/address/dto/update-address.dto";
+import { AppContext } from "../../common/interfaces/AppContext";
 const AddressResolver = {
   Query: {
-    findAddresses: async () => {
-      try {
-        return await prisma.address.findMany({ include: { user: true } });
-      } catch (error) {
-        console.log("🚀 ~ findAddresses:async ~ error:", error);
-      }
+    findAddresses: async (
+      _parents: any,
+      _args: PaginationDto,
+      _contextValue: AppContext,
+      _info: GraphQLResolveInfo
+    ) => {
+      const result = await addressService.getAllAddressesWithPagination(_args);
+      return result;
     },
-    findAddress: async (_: any, __: any, { id }: { id: string }) => {
-      try {
-        return await prisma.address.findUnique({ where: { id: parseInt(id) } });
-      } catch (error) {
-        console.log("🚀 ~ findAddress:async ~ error:", error);
-      }
+    findAddress: async (
+      _parents: any,
+      _args: string,
+      _contextValue: AppContext,
+      _info: GraphQLResolveInfo
+    ) => {
+      const result = await addressService.getAddressById(Number(_args));
+      return result;
     },
   },
   Mutation: {
-    createAddress: async (_: any, __: any, { input }: any) => {
-      try {
-        return await prisma.address.create({ data: input });
-      } catch (error) {
-        console.log("🚀 ~ createAddress:async ~ error:", error);
-      }
+    createAddress: async (
+      _parents: any,
+      _args: CreateAddressDto,
+      _contextValue: AppContext,
+      _info: GraphQLResolveInfo
+    ) => {
+      const result = await addressService.createAddress(_args);
+      return result;
     },
-    editAddress: async (_: any, { id, input }: any) => {
-      try {
-        return await prisma.address.update({
-          where: { id: parseInt(id) },
-          data: input,
-        });
-      } catch (error) {
-        console.log("🚀 ~ editAddress:async ~ error:", error);
-      }
+    editAddress: async (
+      _parents: any,
+      _args: AddressUpdateDto,
+      _contextValue: AppContext,
+      _info: GraphQLResolveInfo
+    ) => {
+      const result = await addressService.editAddress(_args);
+      return result;
     },
-    deleteAddress: async (_: any, { id }: any) => {
-      try {
-        return await prisma.address.delete({ where: { id: parseInt(id) } });
-      } catch (error) {
-        console.log("🚀 ~ deleteAddress:async ~ error:", error);
-      }
+    deleteAddress: async (
+      _parents: any,
+      _args: string,
+      _contextValue: AppContext,
+      _info: GraphQLResolveInfo
+    ) => {
+      const result = await addressService.deleteAddress(Number(_args));
     },
   },
 };
