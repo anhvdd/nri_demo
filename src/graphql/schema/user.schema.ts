@@ -15,8 +15,17 @@ const UserSchema = gql`
     password: String
   }
 
+  input Pagination {
+    page: Int
+    limit: Int
+    offset: Int
+    sortBy: String
+    sortOrder: String
+    search: String
+  }
+
   type Query {
-    findUsers: [User]
+    findUsers(input: Pagination): [User]
     findUser(id: ID!): User
   }
 

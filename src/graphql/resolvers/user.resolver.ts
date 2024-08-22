@@ -11,11 +11,12 @@ const UserResolver = {
   Query: {
     findUsers: async (
       _parents: any,
-      _args: PaginationDto,
+      _args: { input: PaginationDto },
       _contextValue: AppContext,
       _info: GraphQLResolveInfo
     ) => {
-      const result = await userService.getAllUserWithPagination(_args);
+      console.log("🚀 ~ _args:", _args);
+      const result = await userService.getAllUserWithPagination(_args.input);
       return result;
     },
     findUser: async (

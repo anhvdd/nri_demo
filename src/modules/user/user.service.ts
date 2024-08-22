@@ -5,6 +5,7 @@ import { UserCreateDto } from "./dto/create-user.dto";
 import { UserUpdateDto } from "./dto/update-user.dto";
 
 const getAllUserWithPagination = async (query: PaginationDto) => {
+  console.log("🚀 ~ getAllUserWithPagination ~ query:", query);
   try {
     // const result = await prisma.$queryRaw`SELECT * FROM "User"`;
     let order = {};
