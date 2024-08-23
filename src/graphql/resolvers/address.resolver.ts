@@ -1,57 +1,74 @@
 import { GraphQLResolveInfo } from "graphql";
 import { PaginationDto } from "../../common/dtos/pagination.dto";
-import prisma from "../../config/db/prisma";
+import { AppContext } from "../../common/interfaces/AppContext";
 import addressService from "../../modules/address/address.service";
 import { CreateAddressDto } from "../../modules/address/dto/create-address.dto";
 import { AddressUpdateDto } from "../../modules/address/dto/update-address.dto";
-import { AppContext } from "../../common/interfaces/AppContext";
 const AddressResolver = {
   Query: {
     findAddresses: async (
       _parents: any,
-      _args: PaginationDto,
+      _args: { input: PaginationDto },
       _contextValue: AppContext,
       _info: GraphQLResolveInfo
     ) => {
-      const result = await addressService.getAllAddressesWithPagination(_args);
-      return result;
+      const result = await addressService.getAllAddressesWithPagination(
+        _args.input
+      );
+      return {
+        success: true,
+        ...result,
+      };
     },
     findAddress: async (
       _parents: any,
-      _args: string,
+      _args: { id: string },
       _contextValue: AppContext,
       _info: GraphQLResolveInfo
     ) => {
-      const result = await addressService.getAddressById(Number(_args));
-      return result;
+      const result = await addressService.getAddressById(Number(_args.id));
+      return {
+        success: true,
+        ...result,
+      };
     },
   },
   Mutation: {
     createAddress: async (
       _parents: any,
-      _args: CreateAddressDto,
+      _args: { input: CreateAddressDto },
       _contextValue: AppContext,
       _info: GraphQLResolveInfo
     ) => {
-      const result = await addressService.createAddress(_args);
-      return result;
+      const result = await addressService.createAddress(_args.input);
+      return {
+        success: true,
+        ...result,
+      };
     },
     editAddress: async (
       _parents: any,
-      _args: AddressUpdateDto,
+      _args: { id: string; input: AddressUpdateDto },
       _contextValue: AppContext,
       _info: GraphQLResolveInfo
     ) => {
-      const result = await addressService.editAddress(_args);
-      return result;
+      const result = await addressService.editAddress(
+        Number(_args.id),
+        _args.input
+      );
+      return {
+        success: true,
+        ...result,
+      };
     },
     deleteAddress: async (
       _parents: any,
-      _args: string,
+      _args: { id: string },
       _contextValue: AppContext,
       _info: GraphQLResolveInfo
     ) => {
       const result = await addressService.deleteAddress(Number(_args));
+      return { success: true };
     },
   },
 };

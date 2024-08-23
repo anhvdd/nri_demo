@@ -5,31 +5,44 @@ import { UserCreateDto } from "./dto/create-user.dto";
 import { UserUpdateDto } from "./dto/update-user.dto";
 
 const getAllUserWithPagination = async (query: PaginationDto) => {
-  console.log("🚀 ~ getAllUserWithPagination ~ query:", query);
   try {
-    // const result = await prisma.$queryRaw`SELECT * FROM "User"`;
-    let order = {};
+    let order:
+      | Prisma.UserOrderByWithRelationInput
+      | Prisma.UserOrderByWithRelationInput[] = { id: "asc" };
     let filter: Prisma.UserWhereInput = {};
-    if (query.sortBy && query.sortOrder) {
-      order = { [query.sortBy]: query.sortOrder };
-    }
-    if (query.search) {
-      filter = {
-        OR: [
-          { name: { contains: query.search, mode: "insensitive" } },
-          { email: { contains: query.search, mode: "insensitive" } },
-        ],
-      };
-    }
+    if (query) {
+      if (query.sortBy && query.sortOrder) {
+        order = { [query.sortBy]: query.sortOrder };
+      }
+      if (query.search) {
+        filter = {
+          OR: [
+            { name: { contains: query.search, mode: "insensitive" } },
+            { email: { contains: query.search, mode: "insensitive" } },
+          ],
+        };
+      }
+    } else query = new PaginationDto();
+
+    const skip = (query.page - 1) * query.limit;
+    const total = await prisma.user.count();
     const result = await prisma.user.findMany({
       take: query.limit,
-      skip: query.offset,
-      orderBy: [{ ...order }],
+      skip,
+      orderBy: order,
       where: filter,
       relationLoadStrategy: "join",
       select: { id: true, email: true, name: true, address: true },
     });
-    return result;
+    return {
+      items: result,
+      pagination: {
+        page: query.page,
+        limit: query.limit,
+        total: total,
+        totalPages: Math.ceil(total / query.limit),
+      },
+    };
   } catch (error) {
     console.log("🚀 ~ getAllUserWithPagination ~ error:", error);
   }
@@ -37,11 +50,14 @@ const getAllUserWithPagination = async (query: PaginationDto) => {
 
 const getUserById = async (id: number) => {
   try {
-    return await prisma.user.findUnique({
+    const result = await prisma.user.findUnique({
       relationLoadStrategy: "join",
       where: { id },
       select: { id: true, email: true, name: true, address: true },
     });
+    return {
+      item: result,
+    };
   } catch (error) {
     console.log("🚀 ~ getUserById ~ error:", error);
   }
@@ -50,23 +66,36 @@ const getUserById = async (id: number) => {
 const createUser = async (input: UserCreateDto) => {
   try {
     const result = await prisma.user
-      .create({ data: input })
+      .create({
+        data: {
+          name: input.name,
+          email: input.email,
+          password: input.password,
+          address: { connect: { id: Number(input.addressId) } },
+        },
+      })
       .then((result: any) => {
         const newAddedUser = { ...result };
         return newAddedUser;
       });
-    return result;
+    return { item: result };
   } catch (error) {
     console.log("🚀 ~ createUser ~ error:", error);
   }
 };
 
-const editUser = async (input: UserUpdateDto) => {
+const editUser = async (id: number, input: UserUpdateDto) => {
   try {
-    return await prisma.user.update({
-      where: { id: input.id },
-      data: input,
+    const result = await prisma.user.update({
+      where: { id },
+      data: {
+        name: input.name,
+        email: input.email,
+        password: input.password,
+        address: { connect: { id: Number(input.addressId) } },
+      },
     });
+    return { item: result };
   } catch (error) {
     console.log("🚀 ~ editUser:async ~ error:", error);
   }
@@ -74,9 +103,18 @@ const editUser = async (input: UserUpdateDto) => {
 
 const deleteUser = async (id: number) => {
   try {
-    return await prisma.user.delete({ where: { id } });
+    await prisma.user.delete({ where: { id } });
   } catch (error) {
     console.log("🚀 ~ deleteUser:async ~ error:", error);
+  }
+};
+
+// this uses for test transaction
+const batchUpdate = async (ids: number[]) => {
+  try {
+    await prisma.$transaction(async (p) => {});
+  } catch (error) {
+    console.log("🚀 ~ batchUpdate ~ error:", error);
   }
 };
 

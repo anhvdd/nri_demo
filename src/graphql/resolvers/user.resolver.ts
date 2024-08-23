@@ -15,18 +15,23 @@ const UserResolver = {
       _contextValue: AppContext,
       _info: GraphQLResolveInfo
     ) => {
-      console.log("🚀 ~ _args:", _args);
       const result = await userService.getAllUserWithPagination(_args.input);
-      return result;
+      return {
+        success: true,
+        ...result,
+      };
     },
     findUser: async (
       _parents: any,
-      { id }: { id: string },
+      _args: { id: string },
       _contextValue: AppContext,
       _info: GraphQLResolveInfo
     ) => {
-      const result = userService.getUserById(Number(id));
-      return result;
+      const result = await userService.getUserById(Number(_args.id));
+      return {
+        success: true,
+        ...result,
+      };
     },
   },
   // User: {
@@ -50,29 +55,36 @@ const UserResolver = {
   Mutation: {
     createUser: async (
       _parents: any,
-      _args: UserCreateDto,
+      _args: { input: UserCreateDto },
       _contextValue: AppContext,
       _info: GraphQLResolveInfo
     ) => {
-      const result = await userService.createUser(_args);
-      return result;
+      const result = await userService.createUser(_args.input);
+      return {
+        success: true,
+        ...result,
+      };
     },
     editUser: async (
       _parents: any,
-      _args: UserUpdateDto,
+      _args: { id: string; input: UserUpdateDto },
       _contextValue: AppContext,
       _info: GraphQLResolveInfo
     ) => {
-      const result = await userService.editUser(_args);
-      return result;
+      const result = await userService.editUser(Number(_args.id), _args.input);
+      return {
+        success: true,
+        ...result,
+      };
     },
     deleteUser: async (
       _parents: any,
-      _args: string,
+      _args: { id: string },
       _contextValue: AppContext,
       _info: GraphQLResolveInfo
     ) => {
-      const result = await userService.deleteUser(Number(_args));
+      await userService.deleteUser(Number(_args.id));
+      return { success: true };
     },
   },
   Subscription: {

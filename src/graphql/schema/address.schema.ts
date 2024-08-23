@@ -7,21 +7,32 @@ const AddressSchema = gql`
     user: [User]
   }
 
-  input AddressInput {
-    addressDescription: String
-    userId: ID
-  }
-
   type Query {
-    findAddresses: [Address]
-    findAddress(id: ID!): Address
-    address(id: ID!): Address
+    findAddresses(input: Pagination): AddressesResponse
+    findAddress(id: ID!): AddressResponse
   }
 
   type Mutation {
-    createAddress(input: AddressInput): Address
-    editAddress(id: ID!, input: AddressInput): Address
-    deleteAddress(id: ID!): User
+    createAddress(input: AddressInput): AddressResponse
+    editAddress(id: ID!, input: AddressInput): AddressResponse
+    deleteAddress(id: ID!): AddressResponse
+  }
+
+  input AddressInput {
+    addressDescription: String
+  }
+
+  type AddressResponse implements BaseResponse {
+    success: Boolean!
+    message: String
+    item: Address
+  }
+
+  type AddressesResponse implements BaseResponse {
+    success: Boolean!
+    message: String
+    items: [Address]
+    pagination: PaginationInfo
   }
 `;
 export default AddressSchema;

@@ -9,30 +9,15 @@ const UserSchema = gql`
     address: Address
   }
 
-  input UserInput {
-    name: String
-    email: String
-    password: String
-  }
-
-  input Pagination {
-    page: Int
-    limit: Int
-    offset: Int
-    sortBy: String
-    sortOrder: String
-    search: String
-  }
-
   type Query {
-    findUsers(input: Pagination): [User]
-    findUser(id: ID!): User
+    findUsers(input: Pagination): UsersResponse
+    findUser(id: ID!): UserResponse
   }
 
   type Mutation {
-    createUser(input: UserInput): User
-    editUser(id: ID!, input: UserInput): User
-    deleteUser(id: ID!): User
+    createUser(input: UserInput): UserResponse
+    editUser(id: ID!, input: UserInput): UserResponse
+    deleteUser(id: ID!): UserResponse
   }
 
   type Subscription {
@@ -41,10 +26,24 @@ const UserSchema = gql`
     deleteUser(id: ID): User
   }
 
-  type UserBaseResponse {
-    code: String
-    success: Boolean
-    data: User
+  input UserInput {
+    name: String
+    email: String
+    password: String
+    addressId: ID
+  }
+
+  type UserResponse implements BaseResponse {
+    success: Boolean!
+    message: String
+    item: User
+  }
+
+  type UsersResponse implements BaseResponse {
+    success: Boolean!
+    message: String
+    items: [User]
+    pagination: PaginationInfo
   }
 `;
 export default UserSchema;
