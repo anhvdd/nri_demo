@@ -21,6 +21,18 @@ const UserResolver = {
         ...result,
       };
     },
+    findUserWithCursor: async (
+      _parents: any,
+      _args: { input: PaginationDto },
+      _contextValue: AppContext,
+      _info: GraphQLResolveInfo
+    ) => {
+      const result = await userService.getAllWWithCursor(_args.input);
+      return {
+        success: true,
+        ...result,
+      };
+    },
     findUser: async (
       _parents: any,
       _args: { id: string },

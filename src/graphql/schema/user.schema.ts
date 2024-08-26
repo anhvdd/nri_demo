@@ -10,7 +10,8 @@ const UserSchema = gql`
   }
 
   type Query {
-    findUsers(input: Pagination): UsersResponse
+    findUsers(input: PaginationRequest): UsersResponse
+    findUserWithCursor(input: PaginationRequest): UsersResponse
     findUser(id: ID!): UserResponse
   }
 
@@ -43,7 +44,7 @@ const UserSchema = gql`
     success: Boolean!
     message: String
     items: [User]
-    pagination: PaginationInfo
+    pagination: PaginationResponse
   }
 `;
 export default UserSchema;

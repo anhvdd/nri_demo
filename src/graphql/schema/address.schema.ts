@@ -8,7 +8,7 @@ const AddressSchema = gql`
   }
 
   type Query {
-    findAddresses(input: Pagination): AddressesResponse
+    findAddresses(input: PaginationRequest): AddressesResponse
     findAddress(id: ID!): AddressResponse
   }
 
@@ -32,7 +32,7 @@ const AddressSchema = gql`
     success: Boolean!
     message: String
     items: [Address]
-    pagination: PaginationInfo
+    pagination: PaginationResponse
   }
 `;
 export default AddressSchema;
