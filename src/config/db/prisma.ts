@@ -1,4 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
+import { withOptimize } from "@prisma/extension-optimize";
 
 const prisma: PrismaClient = new PrismaClient({
   log: [
@@ -20,11 +21,13 @@ const prisma: PrismaClient = new PrismaClient({
     },
   ],
 });
+prisma.$extends(withOptimize());
 
-prisma.$on("query" as never, (e: any) => {
-  console.log("Query: " + e.query);
-  console.log("Params: " + e.params);
-  console.log("Duration: " + e.duration + "ms");
+prisma.$on("query" as never, (e: Prisma.QueryEvent) => {
+  console.log("QueryEvent:", e);
+  // console.log("Query: " + e.query);
+  // console.log("Params: " + e.params);
+  // console.log("Duration: " + e.duration + "ms");
+  console.log();
 });
-
 export default prisma;

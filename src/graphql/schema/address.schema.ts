@@ -28,11 +28,16 @@ const AddressSchema = gql`
     item: Address
   }
 
-  type AddressesResponse implements BaseResponse {
+  type AddressesResponse implements BaseResponse & PaginationOffsetResInfo {
     success: Boolean!
     message: String
     items: [Address]
-    pagination: PaginationResponse
+    # pagination: PaginationResponse
+
+    page: Int
+    limit: Int
+    total: Int
+    totalPages: Int
   }
 `;
 export default AddressSchema;

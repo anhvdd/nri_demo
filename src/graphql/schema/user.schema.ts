@@ -40,11 +40,18 @@ const UserSchema = gql`
     item: User
   }
 
-  type UsersResponse implements BaseResponse {
+  type UsersResponse implements BaseResponse & PaginationOffsetResInfo & PaginationCursorResInfo {
     success: Boolean!
     message: String
     items: [User]
-    pagination: PaginationResponse
+
+    page: Int
+    limit: Int
+    total: Int
+    totalPages: Int
+
+    startCursor: Int
+    endCursor: Int
   }
 `;
 export default UserSchema;

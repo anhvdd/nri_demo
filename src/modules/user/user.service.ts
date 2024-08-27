@@ -28,21 +28,20 @@ const getAllUserWithPagination = async (query: PaginationDto) => {
     const skip = (query.page - 1) * query.limit;
     const total = await prisma.user.count();
     const result = await prisma.user.findMany({
+      omit: { password: true },
       take: query.limit,
       skip,
       orderBy: order,
       where: filter,
       relationLoadStrategy: "join",
-      select: { id: true, email: true, name: true, address: true },
+      include: { address: true },
     });
     return {
       items: result,
-      pagination: {
-        page: query.page,
-        limit: query.limit,
-        total: total,
-        totalPages: Math.ceil(total / query.limit),
-      },
+      page: query.page,
+      limit: query.limit,
+      total: total,
+      totalPages: Math.ceil(total / query.limit),
     };
   } catch (error) {
     console.log("🚀 ~ getAllUserWithPagination ~ error:", error);
@@ -62,18 +61,21 @@ const getAllWWithCursor = async (query: PaginationDto) => {
       if (query.search) {
         filter = {
           OR: [
-            { name: { contains: query.search, mode: "insensitive" } },
-            { email: { contains: query.search, mode: "insensitive" } },
+            { name: { search: query.search, mode: "insensitive" } },
+            { email: { search: query.search, mode: "insensitive" } },
           ],
         };
       }
     } else query = new PaginationDto();
     const currentCursor = query.cursor;
-    const direction = query.direction;
+    const direction = query.direction ? query.direction : Direction.AFTER;
+    const skip = !currentCursor || Number(currentCursor) === 0 ? 0 : 1;
+    const cursor = currentCursor ? { id: Number(currentCursor) } : undefined;
+
     const result = await prisma.user.findMany({
       take: direction === Direction.AFTER ? query.limit : -query.limit,
-      skip: currentCursor ? 1 : 0,
-      cursor: currentCursor ? { id: Number(currentCursor) } : undefined,
+      skip,
+      cursor,
       orderBy: order,
       where: filter,
     });
@@ -84,14 +86,11 @@ const getAllWWithCursor = async (query: PaginationDto) => {
     const firstUserInResult = result[0];
     const startCursor: number = firstUserInResult?.id ?? null;
 
-    // return result;
     return {
       items: result,
-      pagination: {
-        limit: query.limit,
-        startCursor: startCursor,
-        endCursor: endCursor,
-      },
+      limit: query.limit,
+      startCursor: startCursor,
+      endCursor: endCursor,
     };
   } catch (error) {
     console.log("🚀 ~ getAllWWithCursor ~ error:", error);
@@ -183,4 +182,5 @@ export default {
   createUser,
   editUser,
   deleteUser,
+  batchUpdate,
 };

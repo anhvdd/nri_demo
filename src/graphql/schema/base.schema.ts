@@ -20,6 +20,19 @@ export const BaseSchema = gql`
     message: String
   }
 
+  interface PaginationOffsetResInfo {
+    page: Int
+    limit: Int
+    total: Int
+    totalPages: Int
+  }
+
+  interface PaginationCursorResInfo {
+    limit: Int
+    startCursor: Int
+    endCursor: Int
+  }
+
   type PaginationResponse {
     page: Int
     limit: Int

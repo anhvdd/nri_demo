@@ -4,9 +4,9 @@ export class PaginationDto {
   page: number = 1;
 
   // for cursor pagination
-  cursor?: string;
+  cursor: string; // id
   // endCursor?: string;
-  direction?: Direction = Direction.AFTER;
+  direction: Direction = Direction.AFTER;
 
   sortBy?: string;
   sortOrder?: string;

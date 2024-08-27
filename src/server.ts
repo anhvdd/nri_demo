@@ -13,12 +13,15 @@ async function startServer() {
   const server = new ApolloServer({
     typeDefs: typeDefs,
     resolvers: resolvers,
+    plugins: [],
     // formatError: (formattedError: any, error: any) => {
     //   return formattedError;
     // },
   });
   await server.start();
   server.applyMiddleware({ app });
+
+  // app.use(middleware);
 
   app.listen({ port }, () => {
     console.log(
