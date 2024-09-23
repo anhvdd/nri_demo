@@ -15,6 +15,7 @@ export const BaseSchema = gql`
     success: Boolean!
     message: String
   }
+
   interface ErrorBaseResponse {
     error: [String]
     message: String
@@ -51,5 +52,10 @@ export const BaseSchema = gql`
     pageCount: Int
     hasPreviousPage: Boolean
     hasNextPage: Boolean
+  }
+
+  type GraphQLError {
+    message: String
+    error: [String]
   }
 `;

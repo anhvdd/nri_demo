@@ -30,6 +30,7 @@ const UserSchema = gql`
   input UserInput {
     name: String
     email: String
+    # @constraint(format: "email", maxLength: 255)
     password: String
     addressId: ID
   }
@@ -52,6 +53,10 @@ const UserSchema = gql`
 
     startCursor: Int
     endCursor: Int
+  }
+
+  fragment UserFragment on User {
+    id
   }
 `;
 export default UserSchema;

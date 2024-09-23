@@ -1,6 +1,6 @@
 export class PaginationDto {
   // for offset pagination
-  limit: number = 10;
+  limit: number = 5;
   page: number = 1;
 
   // for cursor pagination

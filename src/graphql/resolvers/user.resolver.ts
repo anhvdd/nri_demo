@@ -1,4 +1,4 @@
-import { GraphQLResolveInfo } from "graphql";
+import { GraphQLError, GraphQLResolveInfo } from "graphql";
 import { PubSub } from "graphql-subscriptions";
 import { PaginationDto } from "../../common/dtos/pagination.dto";
 import { UserCreateDto } from "../../modules/user/dto/create-user.dto";
@@ -15,11 +15,16 @@ const UserResolver = {
       _contextValue: AppContext,
       _info: GraphQLResolveInfo
     ) => {
-      const result = await userService.getAllUserWithPagination(_args.input);
-      return {
-        success: true,
-        ...result,
-      };
+      try {
+        const result = await userService.getAllUserWithPagination(_args.input);
+        return {
+          success: true,
+          ...result,
+        };
+      } catch (error) {
+        throw new GraphQLError("Something went wrong");
+        console.log("🚀 ~ findUsers ~ error:", error);
+      }
     },
     findUserWithCursor: async (
       _parents: any,
@@ -27,11 +32,15 @@ const UserResolver = {
       _contextValue: AppContext,
       _info: GraphQLResolveInfo
     ) => {
-      const result = await userService.getAllWWithCursor(_args.input);
-      return {
-        success: true,
-        ...result,
-      };
+      try {
+        const result = await userService.getAllWithCursor(_args.input);
+        return {
+          success: true,
+          ...result,
+        };
+      } catch (error) {
+        console.log("🚀 ~ findUsers ~ error:", error);
+      }
     },
     findUser: async (
       _parents: any,
@@ -39,11 +48,15 @@ const UserResolver = {
       _contextValue: AppContext,
       _info: GraphQLResolveInfo
     ) => {
-      const result = await userService.getUserById(Number(_args.id));
-      return {
-        success: true,
-        ...result,
-      };
+      try {
+        const result = await userService.getUserById(Number(_args.id));
+        return {
+          success: true,
+          ...result,
+        };
+      } catch (error) {
+        console.log("🚀 ~ findUser ~ error:", error);
+      }
     },
   },
   // User: {
@@ -83,11 +96,18 @@ const UserResolver = {
       _contextValue: AppContext,
       _info: GraphQLResolveInfo
     ) => {
-      const result = await userService.editUser(Number(_args.id), _args.input);
-      return {
-        success: true,
-        ...result,
-      };
+      try {
+        const result = await userService.editUser(
+          Number(_args.id),
+          _args.input
+        );
+        return {
+          success: true,
+          ...result,
+        };
+      } catch (error) {
+        console.log("🚀 ~ editUser:async ~ error:", error);
+      }
     },
     deleteUser: async (
       _parents: any,
@@ -95,8 +115,12 @@ const UserResolver = {
       _contextValue: AppContext,
       _info: GraphQLResolveInfo
     ) => {
-      await userService.deleteUser(Number(_args.id));
-      return { success: true };
+      try {
+        await userService.deleteUser(Number(_args.id));
+        return { success: true };
+      } catch (error) {
+        console.log("🚀 ~ deleteUser:async ~ error:", error);
+      }
     },
   },
   Subscription: {

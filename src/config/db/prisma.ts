@@ -21,7 +21,7 @@ const prisma: PrismaClient = new PrismaClient({
     },
   ],
 });
-prisma.$extends(withOptimize());
+// prisma.$extends(withOptimize());
 
 prisma.$on("query" as never, (e: Prisma.QueryEvent) => {
   console.log("QueryEvent:", e);

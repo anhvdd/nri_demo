@@ -4,6 +4,8 @@ import prisma from "../../config/db/prisma";
 import { UserCreateDto } from "./dto/create-user.dto";
 import { UserUpdateDto } from "./dto/update-user.dto";
 import { GraphQLError } from "graphql";
+import BaseException from "../../common/exceptions/base.exception";
+import logger from "../../common/logging/logging";
 
 const getAllUserWithPagination = async (query: PaginationDto) => {
   try {
@@ -18,8 +20,8 @@ const getAllUserWithPagination = async (query: PaginationDto) => {
       if (query.search) {
         filter = {
           OR: [
-            { name: { contains: query.search, mode: "insensitive" } },
-            { email: { contains: query.search, mode: "insensitive" } },
+            { name: { search: query.search, mode: "insensitive" } },
+            { email: { search: query.search, mode: "insensitive" } },
           ],
         };
       }
@@ -44,11 +46,11 @@ const getAllUserWithPagination = async (query: PaginationDto) => {
       totalPages: Math.ceil(total / query.limit),
     };
   } catch (error) {
-    console.log("🚀 ~ getAllUserWithPagination ~ error:", error);
+    logger.error(error);
   }
 };
 
-const getAllWWithCursor = async (query: PaginationDto) => {
+const getAllWithCursor = async (query: PaginationDto) => {
   try {
     let order:
       | Prisma.UserOrderByWithRelationInput
@@ -86,6 +88,7 @@ const getAllWWithCursor = async (query: PaginationDto) => {
     const firstUserInResult = result[0];
     const startCursor: number = firstUserInResult?.id ?? null;
 
+    // throw new GraphQLError("test error");
     return {
       items: result,
       limit: query.limit,
@@ -93,7 +96,7 @@ const getAllWWithCursor = async (query: PaginationDto) => {
       endCursor: endCursor,
     };
   } catch (error) {
-    console.log("🚀 ~ getAllWWithCursor ~ error:", error);
+    logger.error("Error", error);
   }
 };
 
@@ -108,7 +111,7 @@ const getUserById = async (id: number) => {
       item: result,
     };
   } catch (error) {
-    console.log("🚀 ~ getUserById ~ error:", error);
+    logger.error("Error", error);
   }
 };
 
@@ -129,7 +132,7 @@ const createUser = async (input: UserCreateDto) => {
       });
     return { item: result };
   } catch (error) {
-    console.log("🚀 ~ createUser ~ error:", error);
+    logger.error("Error", error);
   }
 };
 
@@ -146,7 +149,7 @@ const editUser = async (id: number, input: UserUpdateDto) => {
     });
     return { item: result };
   } catch (error) {
-    console.log("🚀 ~ editUser:async ~ error:", error);
+    logger.error("Error", error);
   }
 };
 
@@ -154,7 +157,7 @@ const deleteUser = async (id: number) => {
   try {
     await prisma.user.delete({ where: { id } });
   } catch (error) {
-    console.log("🚀 ~ deleteUser:async ~ error:", error);
+    logger.error("Error", error);
   }
 };
 
@@ -168,16 +171,15 @@ const batchUpdate = async (ids: number[]) => {
           name: "transaction test",
         },
       });
-      throw new GraphQLError("test error");
     });
   } catch (error) {
-    console.log("🚀 ~ batchUpdate ~ error:", error);
+    logger.error("Error", error);
   }
 };
 
 export default {
   getAllUserWithPagination,
-  getAllWWithCursor,
+  getAllWithCursor,
   getUserById,
   createUser,
   editUser,
